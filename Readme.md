@@ -4,6 +4,15 @@
 
 ### 前端界面预览
 
+![alt text](image.png)
+
+#### 具备以下功能:
+
+- **New chat** 新建对话
+- **Setting Temperature** 设置对话温度
+- **Talk** 与机器人聊天沟通
+- **Show current times&Used Token**实时显示时间和已经使用的 token 数量
+
 ## 后端响应&数据处理
 
 ### 获取前端用户输出
