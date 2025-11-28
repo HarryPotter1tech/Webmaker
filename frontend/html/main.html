@@ -1,14 +1,69 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebTalk</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class></div>
-    <div></div>
-    <div></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebTalk</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<!-- 主页面结构 -->
+
+<body>
+  <!--顶部信息栏-->
+  <div class="summary">
+    <div class="summary_content">welcome to WebTalk</div>
+  </div>
+  <!-- 左侧对话列表栏 -->
+  <div class="left_panel">
+    <div>
+      <button class="new_chat">new chat</button>
+    </div>
+    <div class="chat_list">
+      <li class="chat_item"></li>
+    </div>
+  </div>
+  <!-- 数据仪表盘 -->
+  <div class="databoard">
+    <!-- 当前时间日期显示 -->
+    <div class="timeboard">
+      <div class="h_m_s">
+        <div id="hour" title="当前时间"></div>
+        <div>:</div>
+        <div id="minute" title="当前时间"></div>
+        <div>:</div>
+        <div id="second" title="当前时间"></div>
+      </div>
+      <div class="m_d">
+        <div id="month" title="当前日期"></div>
+        -
+        <div id="day" title="当前日期"></div>
+      </div>
+    </div>
+    <!-- Token使用进度条 -->
+    <div class="tokenboard">
+      <div class="message" id="used_tokens_text">Token Used:</div>
+      <div class="progress_bar">
+        <div class="progress_bar_fill" id="used_tokens"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat_window">
+    <div class="chat_avatar">
+      <img src="../assets/user_avatar.jpg!bg"></img>
+      <div class="chat_bubble" id="AImessage"></div>
+    </div>
+  </div>
+  <div class="selection">
+    <div class="selection_button" id="temperature" title="###">Temperature</div>
+    <div class="selection_button" id="save_talk">Save</div>
+  </div>
+  <div class="input_area">
+    <textarea id="user_input" placeholder="Type your message here..."></textarea>
+    <button id="send_button">Send</button>
+  </div>
+  <script src="/frontend/js/main.js"></script>
+</body>
+
 </html>
