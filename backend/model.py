@@ -1,5 +1,5 @@
 import os
-from langchain_deepseek import ChatDeepseek
+from langchain_deepseek import ChatDeepSeek
 from backend import data_type
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -12,17 +12,17 @@ prompt = ChatPromptTemplate(
             "system",
             " 你现在是一名专业的电子工程师，电工学老师，你的任务是回答同学们提出的电学/模电/数电/信号与系统/电子元件制造工艺等问题，要求回答仔细，符合递归引导学生思考理解问题",
         ),
-        {
+        (
             "human",
             "{question}",
-        },
+        ),
     ]
 )
 
 
 # 配置模型参数
-def model_set() -> ChatDeepseek:
-    return ChatDeepseek(
+def model_set() -> ChatDeepSeek:
+    return ChatDeepSeek(
         model="deepseek-chat",
         temperature=data_type.temperature_index,
         max_token=None,
@@ -35,7 +35,8 @@ def model_set() -> ChatDeepseek:
 def model_process():
     llm = model_set()
     chain = prompt | llm
-    return str(chain.invoke(data_type.question_for_model))  # 接受来自前端的拆包的数据
+    response = chain.invoke(data_type.question_for_model)  # 接受来自前端的拆包的数据
+    return response
 
 
 # 后续要考虑实现流式输出

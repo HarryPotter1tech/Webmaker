@@ -51,19 +51,21 @@
 
   <div class="chat_window">
     <div class="chat_avatar">
-      <img src="../assets/user_avatar.jpg!bg"></img>
+      <img src="../assets/user_avatar.jpg!bg" alt="user_avatar"></img>
       <div class="chat_bubble" id="AImessage"></div>
     </div>
   </div>
   <div class="selection">
-    <div class="selection_button" id="temperature" title="###">Temperature</div>
-    <div class="selection_button" id="save_talk">Save</div>
+    <button class="selection_button" id="temperature" title="select temperature index to change AI model's personality">
+      Temperature: 0.0</button>
+    <button class="selection_button" id="save_talk">Save</button>
   </div>
   <div class="input_area">
     <textarea id="user_input" placeholder="Type your message here..."></textarea>
     <button id="send_button">Send</button>
   </div>
-  <script src="/frontend/js/main.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
 </body>
 
 </html>

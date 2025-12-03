@@ -1,4 +1,6 @@
-from math import e
+import os
+import time
+import uuid
 from sqlite3 import connect
 from docx import Document
 
@@ -6,8 +8,12 @@ DATABASE_PATH = "database/database.db"
 
 
 def get_db_connection(db_path=DATABASE_PATH):
+    # 确保目录存在（避免连接时路径不存在）
+    dirpath = os.path.dirname(db_path)
+    if dirpath and not os.path.exists(dirpath):
+        os.makedirs(dirpath, exist_ok=True)
     conn = connect(db_path)
-    print("Database connection established.")
+    print("Database connection established.", db_path)
     return conn
 
 
@@ -19,8 +25,9 @@ def close_db_connection(conn):
 def init_db(db_path=DATABASE_PATH):
     connection = get_db_connection(db_path)
     cursor = connection.cursor()
+    # 使用 IF NOT EXISTS 避免重复创建导致错误
     cursor.execute(
-        "CREATE TABLE chat_history(person TEXT, message TEXT, talkcycle INTEGER)"
+        "CREATE TABLE IF NOT EXISTS chat_history(person TEXT, message TEXT, talkcycle INTEGER)"
     )
     connection.commit()
     close_db_connection(connection)
@@ -47,15 +54,36 @@ def get_all_chat_history(db_path=DATABASE_PATH):
 
 
 def transform_db_to_word(db_path=DATABASE_PATH):
+    """
+    导出数据库聊天记录为 .docx 并返回文件信息字典：
+    { "file_path": "...", "filename": "chat_history_....docx" }
+    """
     rows = get_all_chat_history(db_path)
-    chat_history_doc = Document()
-    chat_history_doc.add_heading("与Deepseek的聊天记录", level=1)
-    with open("chat_history.docx", "w", encoding="utf-8") as f:
-        for row in rows:
-            person, message, talkcycle = row
-            f.write(f"轮次 {talkcycle} - {person}:\n{message}\n\n")
-    chat_history_doc.save("chat_history.docx")
-    return {
-        "file_path": "chat_history.docx",
-        "filename": "chat_history.docx",
-    }  # 返回生成的文件路径
+    doc = Document()
+    doc.add_heading("聊天记录导出", level=1)
+
+    if not rows:
+        doc.add_paragraph("No chat history found.")
+
+    for row in rows:
+        person, message, talkcycle = row
+        doc.add_paragraph(f"轮次 {talkcycle} - {person}:")
+        for line in str(message).splitlines():
+            doc.add_paragraph(line)
+
+    # 输出到数据库目录下的 temp 子目录（确保路径存在）
+    base_dir = os.path.dirname(db_path) or "."
+    out_dir = os.path.join(base_dir, "exports")
+    os.makedirs(out_dir, exist_ok=True)
+
+    # 唯一文件名，避免缓存/并发冲突
+    filename = f"chat_history_{time.strftime('%Y%m%d_%H%M%S', time.localtime())}.docx"
+    out_path = os.path.abspath(os.path.join(out_dir, filename))
+
+    doc.save(out_path)
+    print(f"transform_db_to_word: saved {out_path} ({len(rows)} rows)")
+
+    return {"file_path": out_path, "filename": filename}
+
+
+init_db()  # 确保首次导入时初始化数据库结构

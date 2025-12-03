@@ -6,6 +6,7 @@ class response_type(BaseModel):
     response: str  # 模型回复
     numbers: int  # 对话轮数
     status: int  # 回答状态
+    token_used: int  # 此轮对话使用的token数
 
 
 class question_type(BaseModel):
@@ -19,7 +20,7 @@ question: question_type = question_type(
     role="user", question="", numbers=0, status=0
 )  # 用户问题数据结构
 response: response_type = response_type(
-    role="Deepseek", response="", numbers=0, status=0
+    role="Deepseek", response="", numbers=0, status=0, token_used=0
 )  # 模型回复数据结构
 
 temperature_index: float = 0.0  # 前端用户可调温度
