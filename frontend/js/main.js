@@ -22,22 +22,19 @@ function updateChatWindow(message, person) {
     // 使用 data.js 中的 bot 变量判断
     chat_block.className = (person === bot) ? 'chat_ai_block' : 'chat_person_block';
 
-    const user_avatar_url = 'Webmaker/frontend/assets/user_avatar.jpg';
-    const ai_avatar_url = 'Webmaker/frontend/assets/ai_avatar.jpg';
+    const user_avatar_url = '../assets/user_avatar.png';
+    const ai_avatar_url = '../assets/ai_avatar.png';
 
     const avatar = document.createElement('img');
-    avatar.className = (person === bot) ? 'bot_avator' : 'person_avator';
+    avatar.className = (person === bot) ? 'ai_avator' : 'person_avator';
     avatar.src = (person === bot) ? ai_avatar_url : user_avatar_url;
+    avatar.alt = (person === bot) ? 'AI Avatar' : 'User Avatar';
     avatar.width = 40;
     avatar.height = 40;
 
     const chat_bubble = document.createElement('div');
     chat_bubble.className = "chat_bubble";
     chat_bubble.textContent = message;
-
-    const timestamps = document.createElement('div');
-    timestamps.className = "timestamps";
-    timestamps.textContent = new Date().toLocaleTimeString();
 
     if (person === bot) {
         chat_block.appendChild(avatar);
@@ -46,9 +43,43 @@ function updateChatWindow(message, person) {
         chat_block.appendChild(chat_bubble);
         chat_block.appendChild(avatar);
     }
-    chat_block.appendChild(timestamps);
+
     chat_window.appendChild(chat_block);
     chat_window.scrollTop = chat_window.scrollHeight;
+
+    // 仅在非恢复阶段把消息加入 chat_message_array 并持久化
+    if (!restoringHistory) {
+        chat_message_array.push({ message: String(message), person: person });
+        chat_message_array = chat_message_array.slice(-CHAT_HISTORY_MAX);//保持数组长度不超过CHAT_HISTORY_MAX
+        persistence_chat();
+    }
+}
+
+function persistence_chat() {
+    try {
+        localStorage.setItem('chat_history', JSON.stringify(chat_message_array));//将数组转换为JSON字符串并存储在本地存储中,相当于提取更新
+    }
+    catch (error) {
+        console.error("Error saving chat history:", error);
+    }
+}
+function rerender_chat_window() {
+    const render_chat_message_array = JSON.parse(localStorage.getItem('chat_history')) || [];
+    if (render_chat_message_array.length === 0) return;
+    try {
+        if (!render_chat_message_array || !Array.isArray(render_chat_message_array)) return;
+        restoringHistory = true; // 开始恢复，暂停持久化
+        render_chat_message_array.forEach(item => {
+            updateChatWindow(item.message, item.person);
+        });
+        // 把内存数组设置为恢复的数据的浅拷贝，避免引用同一个对象
+        chat_message_array = render_chat_message_array.slice();
+    }
+    catch (error) {
+        console.error("Error rerendering chat window:", error);
+    } finally {
+        restoringHistory = false; // 恢复完成，恢复正常记录行为
+    }
 }
 //获取AI回复
 async function getResponse(message) {
@@ -72,7 +103,7 @@ async function getResponse(message) {
         AIMessage = data.response;
         AITokenUsed = data.token_used;
         console.log("AI response:", AIMessage);
-        //updateProgressBar(Number(AITokenUsed) || 0);
+        persistence_bar(AITokenUsed);
         updateChatWindow(AIMessage, "AI");
         cycle_token += 1;
         return true;
@@ -150,22 +181,30 @@ function getCurrentTime() {
     minute.innerHTML = _minute;
     second.innerHTML = _second;
 }
-
-function updateProgressBar(new_used_tokens) {
+function persistence_bar(tokens) {
+    total_used_tokens += tokens;
+    try {
+        localStorage.setItem('total_used_tokens', total_used_tokens.toString());
+    } catch (error) {
+        console.error("Error saving total used tokens:", error);
+    }
+    updateProgressBar();
+}
+function updateProgressBar() {
     const progressBar = document.getElementById('used_tokens');
     if (!progressBar) return;
-    total_used_tokens = (typeof total_used_tokens === 'number') ? total_used_tokens + (Number(new_used_tokens) || 0) : (Number(new_used_tokens) || 0);
-    const allowedMax = (typeof max_tokens === 'number' && max_tokens > 0) ? max_tokens : 1000;
-    const percentage = Math.min(100, (total_used_tokens / allowedMax) * 100);
+    total_used_tokens = parseFloat(localStorage.getItem('total_used_tokens'));
+    const percentage = Math.min(100, (total_used_tokens / max_tokens) * 100);
     progressBar.style.width = percentage + '%';
     const progressText = document.getElementById('used_tokens_text');
     if (progressText) progressText.innerHTML = 'Used Tokens: ' + total_used_tokens.toFixed(2);
 }
 document.addEventListener('DOMContentLoaded', () => {
+    rerender_chat_window();
     setTemperature();
     getCurrentTime();
     sendMessage();
+    updateProgressBar();
     saveTalk();
-    updateProgressBar(cycle_token);
     setInterval(getCurrentTime, 1000);
 });

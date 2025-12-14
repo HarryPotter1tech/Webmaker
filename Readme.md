@@ -50,3 +50,14 @@
         talkcycle=data_type.response.numbers,
     )
 ```
+
+## 12 月 15 日更新
+
+### 前端交互预览
+
+![alt text](image-1.png)
+
+- 支持温度调节
+- 支持输入
+- 支持聊天界面交互
+- 支持导出聊天内容
