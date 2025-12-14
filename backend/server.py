@@ -18,13 +18,15 @@ app.add_middleware(
 
 @app.post("/ask", response_model=data_type.response_type)  # 声明强制返回数据类型
 async def response_deepseek(question: data_type.question_type):
-    response = model.model_process()
-    data_type.question_for_model = question.question
-    data_type.response_for_client = response.content  # 调用模型处理用户问题(回复信息)
-    data_type.response.response = data_type.response_for_client
+    AIresponse = await model.model_process(
+        question.question
+    )  # 调用模型处理用户问题(回复信息)
+    data_type.response.response = AIresponse.content  # 模型返回的回答内容
     data_type.response.numbers = question.numbers  # 保持和请求一致的对话轮次
     data_type.response.status = 200
-    data_type.response.token_used = response.usage_metadata.get("total_tokens", 0)
+    data_type.response.token_used = AIresponse.usage_metadata.get("total_tokens", 0)
+    print("Tokens used:", data_type.response.token_used)
+    print("AI Response:", data_type.response.response)
 
     database.update_db(  # 保存用户聊天记录到数据库
         role=data_type.question.role,

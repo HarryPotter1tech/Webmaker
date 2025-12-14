@@ -4,8 +4,9 @@ from backend import data_type
 from langchain_core.prompts import ChatPromptTemplate
 
 DEEPSEEK_API_KEY = "sk-591c5b3ab37c43b2b2541a665bb2dc5f"
-os.getenv("DEEPSEEK_API_KEY")
-
+DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1"
+os.environ["DEEPSEEK_API_KEY"] = DEEPSEEK_API_KEY
+os.environ["DEEPSEEK_ENDPOINT"] = DEEPSEEK_ENDPOINT
 prompt = ChatPromptTemplate(
     [
         (
@@ -25,17 +26,17 @@ def model_set() -> ChatDeepSeek:
     return ChatDeepSeek(
         model="deepseek-chat",
         temperature=data_type.temperature_index,
-        max_token=None,
+        max_tokens=None,
         timeout=300,
         max_retries=3,
     )
 
 
 # 模型初始化,调用模型
-def model_process():
+async def model_process(question: str):
     llm = model_set()
     chain = prompt | llm
-    response = chain.invoke(data_type.question_for_model)  # 接受来自前端的拆包的数据
+    response = chain.invoke(question)  # 接受来自前端的拆包的数据
     return response
 
 

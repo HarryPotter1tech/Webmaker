@@ -22,9 +22,4 @@ question: question_type = question_type(
 response: response_type = response_type(
     role="Deepseek", response="", numbers=0, status=0, token_used=0
 )  # 模型回复数据结构
-
-temperature_index: float = 0.0  # 前端用户可调温度
-
-question_for_model: str = ""  # 拆分出来的用户问题-
-
-response_for_client: str = ""  # 模型处理后的回复
+temperature_index: float = 0.0  # 模型温度参数，默认0.0，后续可调整
