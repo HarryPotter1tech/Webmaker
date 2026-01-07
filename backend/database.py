@@ -1,6 +1,5 @@
 import os
 import time
-import uuid
 from sqlite3 import connect
 from docx import Document
 
