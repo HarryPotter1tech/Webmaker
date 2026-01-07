@@ -1,10 +1,13 @@
 import os
+
 from langchain_deepseek import ChatDeepSeek
-from backend import data_type
+import data_type
 from langchain_core.prompts import ChatPromptTemplate
+
 
 DEEPSEEK_API_KEY = "sk-591c5b3ab37c43b2b2541a665bb2dc5f"
 DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1"
+
 os.environ["DEEPSEEK_API_KEY"] = DEEPSEEK_API_KEY
 os.environ["DEEPSEEK_ENDPOINT"] = DEEPSEEK_ENDPOINT
 prompt = ChatPromptTemplate(
@@ -37,7 +40,5 @@ async def model_process(question: str):
     llm = model_set()
     chain = prompt | llm
     response = chain.invoke(question)  # 接受来自前端的拆包的数据
+
     return response
-
-
-# 后续要考虑实现流式输出
