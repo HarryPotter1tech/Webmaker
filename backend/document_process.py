@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 current_dir = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(current_dir, ".env"))
 KNOWLEDGEBASE_PATH = os.getenv("KNOWLEDGEBASE_PATH")
-MODEL_PATH = os.getenv("JIAN-EMBEDDINGS-V2-BASE-ZH_PATH")
-VECTOR_DIMENSION = os.getenv("JIAN-EMBEDDINGS-V2-BASE-ZH_DIMENSION")
+MODEL_PATH = os.getenv("JINA_EMBEDDINGS_V2_BASE_ZH_PATH")
+VECTOR_DIMENSION = os.getenv("JINA_EMBEDDINGS_V2_BASE_ZH_DIMENSION")
 RAG_INIT_FLAG = os.getenv("RAG_INIT_FLAG")
 
 
@@ -28,7 +28,7 @@ def documents_init(KNOWLEDGEBASE_PATH) -> list:
 
 def documents_split(documents) -> Document:
     text_splitter = RecursiveCharacterTextSplitter(
-        separator=["。", ",", "\n", " ", "\n\n"],
+        separators=["。", ",", "\n", " ", "\n\n"],
         chunk_size=400,
         chunk_overlap=100,
         length_function=len,

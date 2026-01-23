@@ -1,8 +1,8 @@
 import os
 from langchain_deepseek import ChatDeepSeek
-import data_type
+from backend import data_type
 from langchain_core.prompts import ChatPromptTemplate
-from document_process import FAISS_INDEX, EMBEDDING_MODEL, DOCUMENT_SPLITED
+from backend.document_process import FAISS_INDEX, EMBEDDING_MODEL, DOCUMENT_SPLITED
 
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 DEEPSEEK_ENDPOINT = os.getenv("DEEPSEEK_ENDPOINT")
