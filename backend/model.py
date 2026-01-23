@@ -1,15 +1,11 @@
 import os
-
 from langchain_deepseek import ChatDeepSeek
 import data_type
 from langchain_core.prompts import ChatPromptTemplate
+from document_process import FAISS_INDEX, EMBEDDING_MODEL, DOCUMENT_SPLITED
 
-
-DEEPSEEK_API_KEY = "sk-591c5b3ab37c43b2b2541a665bb2dc5f"
-DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1"
-
-os.environ["DEEPSEEK_API_KEY"] = DEEPSEEK_API_KEY
-os.environ["DEEPSEEK_ENDPOINT"] = DEEPSEEK_ENDPOINT
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+DEEPSEEK_ENDPOINT = os.getenv("DEEPSEEK_ENDPOINT")
 prompt = ChatPromptTemplate(
     [
         (
@@ -38,7 +34,17 @@ def model_set() -> ChatDeepSeek:
 # 模型初始化,调用模型
 async def model_process(question: str):
     llm = model_set()
-    chain = prompt | llm
-    response = chain.invoke(question)  # 接受来自前端的拆包的数据
+    chain = (
+        prompt
+        | llm
+        | ChatDeepSeek.RAGChain(
+            index=FAISS_INDEX,
+            embedding_model=EMBEDDING_MODEL,
+            documents=DOCUMENT_SPLITED,
+            k=data_type.k_index,
+            return_source_documents=False,
+        )
+    )
+    response = await chain.invoke(question)  # 接受来自前端的拆包的数据
 
     return response

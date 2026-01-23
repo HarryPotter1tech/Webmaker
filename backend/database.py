@@ -6,7 +6,7 @@ from docx import Document
 DATABASE_PATH = "database/database.db"
 
 
-def get_db_connection(db_path=DATABASE_PATH):
+def db_get_connection(db_path=DATABASE_PATH):
     # 确保目录存在（避免连接时路径不存在）
     dirpath = os.path.dirname(db_path)
     if dirpath and not os.path.exists(dirpath):
@@ -16,39 +16,39 @@ def get_db_connection(db_path=DATABASE_PATH):
     return conn
 
 
-def close_db_connection(conn):
+def db_close_connection(conn):
     conn.close()
     print("Database connection closed.")
 
 
-def init_db(db_path=DATABASE_PATH):
-    connection = get_db_connection(db_path)
+def db_init(db_path=DATABASE_PATH):
+    connection = db_get_connection(db_path)
     cursor = connection.cursor()
     # 使用 IF NOT EXISTS 避免重复创建导致错误
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS chat_history(person TEXT, message TEXT, talkcycle INTEGER)"
     )
     connection.commit()
-    close_db_connection(connection)
+    db_close_connection(connection)
 
 
-def update_db(role: str, message: str, talkcycle: int, db_path=DATABASE_PATH):
-    connection = get_db_connection(db_path)
+def db_update(role: str, message: str, talkcycle: int, db_path=DATABASE_PATH):
+    connection = db_get_connection(db_path)
     cursor = connection.cursor()
     cursor.execute(
         "INSERT INTO chat_history (person, message, talkcycle) VALUES (?, ?, ?)",
         (role, message, talkcycle),
     )
     connection.commit()
-    close_db_connection(connection)
+    db_close_connection(connection)
 
 
-def get_all_chat_history(db_path=DATABASE_PATH):
-    connection = get_db_connection(db_path)
+def db_get_all_chat_history(db_path=DATABASE_PATH):
+    connection = db_get_connection(db_path)
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM chat_history")
     rows = cursor.fetchall()
-    close_db_connection(connection)
+    db_close_connection(connection)
     return rows
 
 
@@ -57,7 +57,7 @@ def transform_db_to_word(db_path=DATABASE_PATH):
     导出数据库聊天记录为 .docx 并返回文件信息字典：
     { "file_path": "...", "filename": "chat_history_....docx" }
     """
-    rows = get_all_chat_history(db_path)
+    rows = db_get_all_chat_history(db_path)
     doc = Document()
     doc.add_heading("聊天记录导出", level=1)
 
@@ -85,4 +85,4 @@ def transform_db_to_word(db_path=DATABASE_PATH):
     return {"file_path": out_path, "filename": filename}
 
 
-init_db()  # 确保首次导入时初始化数据库结构
+db_init()  # 确保首次导入时初始化数据库结构
